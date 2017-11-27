@@ -26,11 +26,14 @@ class Node(object):
 	def __eq__(self, other):
 		return self.var == other.var
 
-	def __neq__(self, other):
+	def __ne__(self, other):
 		return not self.__eq__(self, other)
 
 	def __repr__(self):
 		return str(self.var) + " : " + str(self.parents)
+
+	def __hash__(self):
+		return hash(tuple([tuple(self.var), tuple(self.parents)]))
 
 class BayesNet(object):
 
@@ -75,7 +78,6 @@ class Expr(object):
 
 	def __str__(self):
 		return "Query Variables : " + str(self.query_vars.keys()) + ", Condition Variables : " + str(self.cond_vars.keys())
-		
 
 def gibbs_ask(X, e, bn, N):
 	"""[Figure 14.16]
@@ -90,8 +92,9 @@ def gibbs_ask(X, e, bn, N):
 		for Zi in Z:
 			state[Zi] = markov_blanket_sample(Zi, state, bn)
 			counts[state[X]] += 1
-	return counts
-
+	tot = counts[True] + counts[False]
+	normalized = {True:float(counts[True])/tot, False:float(counts[False])/tot}
+	return normalized
 
 def markov_blanket_sample(X, e, bn):
 	Xnode = bn.variable_node(X)
@@ -111,12 +114,17 @@ def main():
 	bn = BayesNet(content)
 	# for node in bn.nodes:
 	# 	print(node)
-    X = 'G'
-    e = {'O': True, 'A': True, 'X':True, 'N': True, 'H':True}
-    # print(markov_blanket_sample(X, e, bn))
-    gibbs_ask(X, e, bn, 100)
+	# X = 'G'
+	# e = {'O': True, 'A': True, 'X':True, 'N': True, 'H':True}
+ #    # print(markov_blanket_sample(X, e, bn))
+	# print(gibbs_ask(X, e, bn, 100))
     # print(bn.markov_blanket('A'))
-    test = Expr("~A B ~C", "D ~E F")
-    print(test)
+	test = Expr("B", "L")
+    # print(test)
+	prod = 1
+	for key, val in test.query_vars.items():
+		prod *= gibbs_ask(key, test.cond_vars, bn, 5000)[val]
+	print(prod)
 
-main()
+if __name__ == "__main__":
+	main()
