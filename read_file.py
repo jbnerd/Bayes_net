@@ -52,9 +52,22 @@ def pack_in_dict(prob):
     ret['parents'] = cause_list
     return ret
 
+def ordering(nd):
+	new  = []
+	var = set()
+	while nd:
+		for nodes in nd:
+			if nodes['parents'] == [] or set(nodes['parents']).issubset(var):
+				new.append(nodes)
+				var.add(nodes['var'])
+				nd.remove(nodes)
+	return new
+
 def read_file():
+    from pprint import pprint
     content = read("input.txt")
     content = [pack_in_dict(item) for item in content]
+    content = ordering(content)
     return content
 
 if __name__ == '__main__':

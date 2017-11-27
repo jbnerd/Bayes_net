@@ -32,7 +32,6 @@ class BayesNet(object):
 		self.nodes = []
 		self.variables = []
 		for node_dict in list_nodes:
-			print(node_dict)
 			self.add(node_dict)
 
 	def add(self, node_dict):
@@ -40,7 +39,6 @@ class BayesNet(object):
 		self.nodes.append(node)
 		self.variables.append(node.var)
 		for parent in node.parents:
-			print("\t" + parent)
 			self.variable_node(parent).children.append(node)
 
 	def variable_node(self, var):
@@ -55,4 +53,5 @@ class BayesNet(object):
 def main():
     content = read_file()
     bn = BayesNet(content)
+
 main()
