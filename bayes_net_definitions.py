@@ -1,6 +1,13 @@
+from read_file import read_file
+
 def probability(p):
 	"""	returns True with probability p."""
 	return p > random.uniform(0.0, 1.0)
+
+class ProbDist(object):
+    def __init__(self, var = "UNK", freqs = None):
+        self.var = var
+        self.prob = freqs
 
 class Node(object):
 	"""docstring for Node"""
@@ -25,15 +32,27 @@ class BayesNet(object):
 		self.nodes = []
 		self.variables = []
 		for node_dict in list_nodes:
+			print(node_dict)
 			self.add(node_dict)
 
 	def add(self, node_dict):
-		node = Node(nodes_dict)
+		node = Node(node_dict)
 		self.nodes.append(node)
 		self.variables.append(node.var)
 		for parent in node.parents:
+			print("\t" + parent)
 			self.variable_node(parent).children.append(node)
 
 	def variable_node(self, var):
 		return [n for n in self.nodes if n.var == var][0]
 		raise Exception("no such variable {}".format(var))
+
+	def markov_blanket(self, node):
+		node = self.variable_node(node)
+		blanket = [node]
+		parents = node.parents.split()
+
+def main():
+    content = read_file()
+    bn = BayesNet(content)
+main()
