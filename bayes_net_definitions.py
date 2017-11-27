@@ -45,11 +45,6 @@ class BayesNet(object):
 		return [n for n in self.nodes if n.var == var][0]
 		raise Exception("no such variable {}".format(var))
 
-	def markov_blanket(self, node):
-		node = self.variable_node(node)
-		blanket = [node]
-		parents = node.parents.split()
-
 def main():
     content = read_file()
     bn = BayesNet(content)
