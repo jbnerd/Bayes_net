@@ -30,24 +30,7 @@ def pack_in_dict(prob):
     t_f_vals = t_f(len(cause_list))
     ret = dict()
     cpt = {torf:likeliness for torf,likeliness in zip(t_f_vals, cpt)}
-    if len(cause_list) == 0:
-        for key, val in cpt.items():
-            if key == ():
-                cpt = val
-        # cause_list = " ".join(cause_list)
-        ret['cpt'] = cpt
-    elif len(cause_list) == 1:
-        cpt_temp = {}
-        for key, val in cpt.items():
-            if key == (False,):
-                cpt_temp[False] = val
-            elif key == (True,):
-                cpt_temp[True] = val
-        # cause_list = " ".join(cause_list)
-        ret['cpt'] = cpt_temp
-    else:
-        # cause_list = " ".join(cause_list)
-        ret['cpt'] = cpt
+    ret['cpt'] = cpt
     ret['var'] = prob[0]
     ret['parents'] = cause_list
     return ret
