@@ -65,6 +65,18 @@ class BayesNet(object):
 		blanket = list(set(blanket))
 		return blanket
 
+class Expr(object):
+	"""docstring for Expr"""
+	def __init__(self, query_vars, cond_vars):
+		self.query_vars = query_vars.split()
+		self.cond_vars = cond_vars.split()
+		self.query_vars = {item[-1]:True if item[0] != "~" else False for item in self.query_vars}
+		self.cond_vars = {item[-1]:True if item[0] != "~" else False for item in self.cond_vars}
+
+	def __str__(self):
+		return "Query Variables : " + str(self.query_vars.keys()) + ", Condition Variables : " + str(self.cond_vars.keys())
+		
+
 def gibbs_ask(X, e, bn, N):
     """[Figure 14.16]
 	N times simulation"""
@@ -106,5 +118,7 @@ def main():
     # print(markov_blanket_sample(X, e, bn))
     gibbs_ask(X, e, bn, 100)
     # print(bn.markov_blanket('A'))
+    test = Expr("~A B ~C", "D ~E F")
+    print(test)
 
 main()
