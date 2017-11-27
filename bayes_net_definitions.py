@@ -65,6 +65,18 @@ def markov_blanket(bn, var):
 	blanket["spouse"] = list(set(spouse))
 	return blanket
 
+class Expr(object):
+	"""docstring for Expr"""
+	def __init__(self, query_vars, cond_vars):
+		self.query_vars = query_vars.split()
+		self.cond_vars = cond_vars.split()
+		self.query_vars = {item[-1]:True if item[0] != "~" else False for item in self.query_vars}
+		self.cond_vars = {item[-1]:True if item[0] != "~" else False for item in self.cond_vars}
+
+	def __str__(self):
+		return "Query Variables : " + str(self.query_vars.keys()) + ", Condition Variables : " + str(self.cond_vars.keys())
+		
+
 def gibbs_ask(X, e, bn, N):
 	"""[Figure 14.16]
 	N times simulation"""
@@ -99,10 +111,12 @@ def main():
 	bn = BayesNet(content)
 	# for node in bn.nodes:
 	# 	print(node)
-	X = 'G'
-	e = {'O': True, 'A': True, 'X':True, 'N': True, 'H':True}
-	# print(markov_blanket_sample(X, e, bn))
-	print(gibbs_ask(X, e, bn, 100))
-	# print(markov_blanket(bn, 'A'))
+    X = 'G'
+    e = {'O': True, 'A': True, 'X':True, 'N': True, 'H':True}
+    # print(markov_blanket_sample(X, e, bn))
+    gibbs_ask(X, e, bn, 100)
+    # print(bn.markov_blanket('A'))
+    test = Expr("~A B ~C", "D ~E F")
+    print(test)
 
 main()
