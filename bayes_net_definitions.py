@@ -24,6 +24,17 @@ class Node(object):
 	def sample(self, events):
 		return probability(self.conditional_prob(True, events))
 
+	def __str__(self):
+		return str(self.var)
+
+	def __eq__(self, other):
+		return self.var == other.var
+
+	def __neq__(self, other):
+		return self.__eq__(self, other)
+
+	def __repr(self):
+		return str(self.var)
 
 class BayesNet(object):
 
@@ -51,6 +62,13 @@ class BayesNet(object):
 		node = self.variable_node(node)
 		blanket = [node]
 		parents = node.parents.split()
+		parents = [self.variable_node(parent) for parent in parents]
+		blanket = blanket + parents
+		children = [item for item in self.nodes if str(node) in item.parents]
+		blanket = blanket + children
+		spouse = [self.variable_node(parent) for item in children for parent in item.parents if self.variable_node(parent) not in blanket]
+		blanket = blanket + spouse
+		blanket = list(set(blanket))
 
 def main():
     content = read_file()
