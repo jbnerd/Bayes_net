@@ -20,11 +20,11 @@ class Node(object):
 
 class BayesNet(object):
 
-	def __init__(self, nodes_spec=[]):
-		""" nodes_spec is list of dictionaries for all the values."""
+	def __init__(self, list_nodes=[]):
+		""" list_nodes is list of dictionaries for all the values."""
 		self.nodes = []
 		self.variables = []
-		for node_dict in nodes_spec:
+		for node_dict in list_nodes:
 			self.add(node_dict)
 
 	def add(self, node_dict):
