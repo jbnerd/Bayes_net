@@ -52,59 +52,57 @@ class BayesNet(object):
 		return [n for n in self.nodes if n.var == var][0]
 		raise Exception("no such variable {}".format(var))
 
-	def markov_blanket(self, node):
-		node = self.variable_node(node)
-		blanket = [node]
-		parents = node.parents
-		parents = [self.variable_node(parent) for parent in parents]
-		blanket = blanket + parents
-		children = [item for item in self.nodes if node.var in item.parents]
-		blanket = blanket + children
-		spouse = [self.variable_node(parent) for item in children for parent in item.parents]
-		blanket = blanket + spouse
-		blanket = list(set(blanket))
-		return blanket
+def markov_blanket(bn, var):
+	node = bn.variable_node(var)
+	blanket = dict()
+	blanket["node"] = node
+	parents = node.parents
+	parents = [bn.variable_node(parent) for parent in parents]
+	blanket["parents"] = parents
+	children = node.children
+	blanket["children"] = children
+	spouse = [bn.variable_node(parent) for item in children for parent in item.parents]
+	blanket["spouse"] = list(set(spouse))
+	return blanket
 
 def gibbs_ask(X, e, bn, N):
-    """[Figure 14.16]
+	"""[Figure 14.16]
 	N times simulation"""
-    # assert X not in e, "Query variable must be distinct from evidence"
-    counts = {x: 0 for x in [False, True]}  # bold N in [Figure 14.16]
-    Z = [var for var in bn.variables if var not in e]
-    state = dict(e)  # boldface x in [Figure 14.16]
-    for Zi in Z:
-        state[Zi] = random.choice([False, True])
-    print(state)
-    for j in range(N):
-        for Zi in Z:
-            state[Zi] = markov_blanket_sample(Zi, state, bn)
-            counts[state[X]] += 1
-    print(counts)
-    # return ProbDist(X, counts)
+	# assert X not in e, "Query variable must be distinct from evidence"
+	counts = {x: 0 for x in [False, True]}  # bold N in [Figure 14.16]
+	Z = [var for var in bn.variables if var not in e]
+	state = dict(e)  # boldface x in [Figure 14.16]
+	for Zi in Z:
+		state[Zi] = random.choice([False, True])
+	for j in range(N):
+		for Zi in Z:
+			state[Zi] = markov_blanket_sample(Zi, state, bn)
+			counts[state[X]] += 1
+	return counts
 
 
 def markov_blanket_sample(X, e, bn):
-    Xnode = bn.variable_node(X)
-    ei = e.copy()
-    ei[X] = True
-    child_probs = [Yj.conditional_prob(ei[Yj.var], ei)for Yj in Xnode.children]
-    QT = Xnode.conditional_prob(True, e) * reduce(lambda x,y: x*y, child_probs, 1)
-    ei[X] = False
-    child_probs = [Yj.conditional_prob(ei[Yj.var], ei)for Yj in Xnode.children]
-    QF = Xnode.conditional_prob(False, e) * reduce(lambda x,y: x*y, child_probs, 1)
-
-    normalized = QT/(QT + QF)
-    return probability(normalized)
+	Xnode = bn.variable_node(X)
+	mb = markov_blanket(bn, X)
+	ei = e.copy()
+	ei[X] = True
+	child_probs = [ Yj.conditional_prob(ei[Yj.var], ei)for Yj in mb['children'] ]
+	QT = Xnode.conditional_prob(True, e) * reduce(lambda x,y: x*y, child_probs, 1)
+	ei[X] = False
+	child_probs = [ Yj.conditional_prob(ei[Yj.var], ei)for Yj in mb['children'] ]
+	QF = Xnode.conditional_prob(False, e) * reduce(lambda x,y: x*y, child_probs, 1)
+	normalized = QT/(QT + QF)
+	return probability(normalized)
 
 def main():
-    content = read_file()
-    bn = BayesNet(content)
+	content = read_file()
+	bn = BayesNet(content)
 	# for node in bn.nodes:
 	# 	print(node)
-    X = 'G'
-    e = {'O': True, 'A': True, 'X':True, 'N': True, 'H':True}
-    # print(markov_blanket_sample(X, e, bn))
-    gibbs_ask(X, e, bn, 100)
-    # print(bn.markov_blanket('A'))
+	X = 'G'
+	e = {'O': True, 'A': True, 'X':True, 'N': True, 'H':True}
+	# print(markov_blanket_sample(X, e, bn))
+	print(gibbs_ask(X, e, bn, 100))
+	# print(markov_blanket(bn, 'A'))
 
 main()
