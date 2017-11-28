@@ -1,3 +1,8 @@
+####################################################################################################
+#            2015A7PS0116P
+#            Abhishek V Joshi
+####################################################################################################
+
 def read(filename):
     with open(filename) as fp:
         content = fp.readlines()
@@ -35,22 +40,21 @@ def pack_in_dict(prob):
     ret['parents'] = cause_list
     return ret
 
-def ordering(nd):
+def node_in_order(content):
 	new  = []
 	var = set()
-	while nd:
-		for nodes in nd:
+	while content:
+		for nodes in content:
 			if nodes['parents'] == [] or set(nodes['parents']).issubset(var):
 				new.append(nodes)
 				var.add(nodes['var'])
-				nd.remove(nodes)
+				content.remove(nodes)
 	return new
 
 def read_file():
-    from pprint import pprint
     content = read("input.txt")
     content = [pack_in_dict(item) for item in content]
-    content = ordering(content)
+    content = node_in_order(content)
     return content
 
 if __name__ == '__main__':
